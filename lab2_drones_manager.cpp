@@ -363,15 +363,13 @@ void DronesManagerSorted::sort_asc() {
         // size is zero or one
     } else {
         int swapped;
-        DroneRecord* temp2 = NULL;
+        // DroneRecord* temp2 = NULL;
         do {
             swapped = 0;
             DroneRecord* temp = first;
             while (temp->next) {
                 if (temp->droneID > temp->next->droneID) {
-                    DroneRecord* end = temp;
-                    temp = temp2;
-                    temp2 = end;
+                    swap(temp, temp->next);
                     swapped = 1;
                 }
                 temp = temp->next;
@@ -386,6 +384,17 @@ void DronesManagerSorted::sort_desc() {
     if (!first || !first->next) {
         // size is zero or one
     } else {
-        
+        int swapped;
+        do {
+            swapped = 0;
+            DroneRecord* temp = first;
+            while (temp->next) {
+                if (temp->droneID < temp->next->droneID) {
+                    swap(temp, temp->next);
+                    swapped = 1;
+                }
+            }
+        }
+        while(swapped);
     }
 }
