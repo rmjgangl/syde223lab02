@@ -30,9 +30,8 @@ unsigned int DronesManager::get_size() const {
     } else if (!first->next) {
         size = 1;
     } else {
-        // size = 1;
         DroneRecord* temp = first;
-        while (temp->next) {
+        while (temp) {
             ++size;
             temp = temp->next;
         }
@@ -69,6 +68,7 @@ unsigned int DronesManager::search(DroneRecord value) const {
             temp = temp->next;
             ++index;
         }
+        return index;
     }
     return size;
 }
@@ -121,35 +121,50 @@ bool DronesManager::insert(DroneRecord value, unsigned int index) {
 }
 
 bool DronesManager::insert_front(DroneRecord value) {
+    if (search(value) != 0) {
+        return false;
+    }
     if (!first) {
         first = new DroneRecord(value);
         first->next = NULL;
         first->prev = NULL;
+        last = first;
+        ++size;
+        return true;
     } else {
         DroneRecord* temp = new DroneRecord(value);
         temp->next = first;
         first->prev = temp;
         last = first;
         first = temp;
+        ++size;
+        return true;
     }
-    ++size;
-    return true;
 }
 
 bool DronesManager::insert_back(DroneRecord value) {
+    if (search(value) != 0) {
+        return false;
+    }
     if (!first) {
         first = new DroneRecord(value);
         first->next = NULL;
         first->prev = NULL;
+        last = first;
+        ++size;
+        return true;
     } else {
+        DroneRecord* end = first;
+        while (end->next)
+            end = end->next;
         DroneRecord* temp = new DroneRecord(value);
-        last->next = temp;
-        temp->prev = last;
+        end->next = temp;
+        temp->prev = end;
         temp->next = NULL;
         last = temp;
+        ++size;
+        return true;
     }
-    ++size;
-    return true;
 }
 
 bool DronesManager::remove(unsigned int index) {
@@ -361,9 +376,20 @@ bool DronesManagerSorted::insert_sorted_desc(DroneRecord val) {
 void DronesManagerSorted::sort_asc() {
     if (!first || !first->next) {
         // size is zero or one
-    } else {
-        int swapped;
+    } else {/*
+        bool swapped = true;
+        for (int i = 0; i < size && swapped; ++i) {
+            swapped = false;
+            DroneRecord* temp = first;
+            for (int j = 0; j < size-1-i; ++j) {
+                if (temp->droneID > temp->next->droneID) {
+                    swap(temp, temp->next);
+                    swapped = true;
+                }
+            }
+        }*/
         // DroneRecord* temp2 = NULL;
+        int swapped;
         do {
             swapped = 0;
             DroneRecord* temp = first;
