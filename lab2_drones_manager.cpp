@@ -17,7 +17,8 @@ bool operator==(const DronesManager::DroneRecord& lhs, const DronesManager::Dron
     lhs.droneID == rhs.droneID &&
     lhs.droneType == rhs.droneType &&
     lhs.manufacturer == rhs.manufacturer &&
-    lhs.range == rhs.range){
+    lhs.range == rhs.range &&
+    lhs.yearBought == rhs.yearBought){
         is_equal = true;
     }
     return is_equal;
