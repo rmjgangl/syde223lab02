@@ -71,7 +71,6 @@ unsigned int DronesManager::search(DroneRecord value) const {
         }
         return index;
     }
-    return size;
 }
 
 void DronesManager::print() const {
