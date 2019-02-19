@@ -101,11 +101,10 @@ bool DronesManager::insert(DroneRecord value, unsigned int index) {
         temp->prev = NULL;
         ++size;
     } else if (!first->next) {
-        DroneRecord* temp = new DroneRecord(value);
-        first->next = temp;
-        temp->next = NULL;
-        temp->prev = first;
-        last = temp;
+        if (index == 0)
+            insert_front(value);
+        if (index == 1)
+            insert_back(value);
         ++size;
     } else if (index == size) {
         insert_back(value);
@@ -123,7 +122,6 @@ bool DronesManager::insert(DroneRecord value, unsigned int index) {
         temp->next = insert;
         ++size;
     }
-    //++size;
     return true;
 }
 
@@ -186,7 +184,6 @@ bool DronesManager::remove(unsigned int index) {
         delete temp;
         --size;
     }
-    //--size;
     return true;
 }
 
@@ -216,13 +213,14 @@ bool DronesManager::remove_back() {
         last = NULL;
         --size;
     } else {
-        DroneRecord* temp = last->prev;
-        delete (temp->next);
-        temp->next = NULL;
-        last = temp;
+        DroneRecord* temp = last;
+        DroneRecord* temp2;
+        temp2 = temp->prev;
+        delete (temp);
+        temp2->next = NULL;
+        last = temp2;
         --size;
     }
-    //--size;
     return true;
 }
 
@@ -242,17 +240,18 @@ bool DronesManager::reverse_list() {
     } else if (!first->next) {
         return true;
     } else {
-        DroneRecord* temp = first;
-        DroneRecord* prev = NULL;
-        DroneRecord* next = NULL;
-        while (temp) {
-            next = temp->next;
-            temp->next = prev;
-            prev = temp;
-            temp = next;
+        DroneRecord* current = first;
+        DroneRecord* temp = NULL;
+        while (current) {
+            temp = current->prev;
+            current->prev = current->next;
+            current->next = temp;
+            current = current->prev;
         }
-        first = prev;
-        // pointer to last?
+        DroneRecord* temp1 = first;
+        DroneRecord* temp2 = last;
+        first = temp2;
+        last = temp1;
         return true;
     }
 }
@@ -291,127 +290,83 @@ bool DronesManagerSorted::is_sorted_desc() const {
     return true;
 }
 
-bool DronesManagerSorted::insert_sorted_asc(DroneRecord val) {/*
+bool DronesManagerSorted::insert_sorted_asc(DroneRecord val) {
     DroneRecord* temp = new DroneRecord(val);
     if (!first) {
-        first = new DroneRecord(val);
-        ++size;
-        return true;
-    } else if (!first->next) {
-        if (first->droneID < temp->droneID) {
-            first->next = temp;
-            temp->prev = first;
-            last = temp;
-        } else {
-            first->prev = temp;
-            temp->next = first;
-            last = first;
-            first = temp;
-        }
+        first = temp;
+        last = temp;
         ++size;
         return true;
     } else if (!is_sorted_asc()) {
         return false;
     } else {
-        DroneRecord* temp = first;
         int index = 0;
-        while (temp) {
-            temp = temp->next;
-            ++index;
-        }
-        insert(val, index);
-        /*DroneRecord* temp2 = first;
-        while (temp2) {
-            if (temp2->droneID < temp->droneID) {
-                temp2->next = temp;
-                temp->prev = temp2;
-                temp2 = temp->next;
-                temp2->prev = temp;
-                temp->next = temp2;
-            }
-            temp = temp->next;
-            temp2 = temp2->next;
-        }
-        ++size;
-        return true;
-    }
-                                                               */return true;}
-
-bool DronesManagerSorted::insert_sorted_desc(DroneRecord val) {/*
-    DroneRecord* temp = new DroneRecord(val);
-    if (!first) {
-        first = new DroneRecord(val);
-        ++size;
-        return true;
-    } else if (!first->next) {
-        if (first->droneID > temp->droneID) {
-            first->next = temp;
-            temp->prev = first;
-            last = temp;
-        } else {
-            first->prev = temp;
-            temp->next = first;
-            last = first;
-            first = temp;
-        }
-        ++size;
-        return true;
-    } else if (!is_sorted_desc()) {
-        return false;
-    } else {
-        DroneRecord* temp2 = last;
+        DroneRecord* temp2 = first;
         while (temp2) {
             if (temp2->droneID > temp->droneID) {
-                temp2->next = temp;
-                temp->prev = temp2;
-                temp2 = temp->next;
-                temp2->prev = temp;
-                temp->next = temp2;
+                insert(val, index);
+                return true;
             }
-            temp = temp->prev;
-            temp2 = temp2->prev;
+            temp2 = temp2->next;
+            index++;
         }
-        ++size;
         return true;
     }
-                                                                */ return true;}
+}
+
+bool DronesManagerSorted::insert_sorted_desc(DroneRecord val) {
+    DroneRecord* temp = new DroneRecord(val);
+    if (!first) {
+        first = temp;
+        last = temp;
+        ++size;
+        return true;
+      } else if (!is_sorted_desc()) {
+            return false;
+      } else {
+        int index = 0;
+        DroneRecord* temp2 = first;
+        while (temp2) {
+            if (temp2->droneID < temp->droneID) {
+                insert(val, index);
+                return true;
+            }
+            temp2 = temp2->next;
+            index++;
+        }
+        return true;
+    }
+}
 
 void DronesManagerSorted::sort_asc() {
-    if (!first || !first->next) {
-        // size is zero or one
+    if (!first) {
+        return;
+    } else if (!first->next) {
+        return;
     } else {
-        int swapped;
+        int swapped = 0;
+        int temp;
+        DroneRecord* temp1;
+        DroneRecord* temp2 = NULL;
         do {
             swapped = 0;
-            DroneRecord* temp = first;
-            while (temp->next) {
-                if (temp->droneID > temp->next->droneID) {
-                    swap(temp, temp->next);
+            temp1 = first;
+            while (temp1->next != temp2) {
+                if (temp1->droneID > temp1->next->droneID) {
+                    temp = temp1->droneID;
+                    temp1->droneID = temp1->next->droneID;
+                    temp1->next->droneID = temp;
                     swapped = 1;
                 }
-                temp = temp->next;
+                temp1 = temp1->next;
             }
-            // temp2 = temp;
+            temp2 = temp1;
         }
         while (swapped);
     }
 }
 
 void DronesManagerSorted::sort_desc() {
-    if (!first || !first->next) {
-        // size is zero or one
-    } else {
-        int swapped;
-        do {
-            swapped = 0;
-            DroneRecord* temp = first;
-            while (temp->next) {
-                if (temp->droneID < temp->next->droneID) {
-                    swap(temp, temp->next);
-                    swapped = 1;
-                }
-            }
-        }
-        while(swapped);
-    }
+    sort_asc();
+    reverse_list();
 }
