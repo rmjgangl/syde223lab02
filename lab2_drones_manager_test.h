@@ -55,56 +55,68 @@ public:
     }
     
     // PURPOSE: remove_front() and remove_back() on one-element list
-    bool test4() {
-        DronesManager manager1, manager2;
-        ASSERT_TRUE(manager1.insert_front(DronesManager::DroneRecord(100)))
-        ASSERT_TRUE(manager2.insert_front(DronesManager::DroneRecord(100)))
-        ASSERT_TRUE(manager1.remove_front())
-        ASSERT_TRUE(manager2.remove_back())
+    bool test4 () {
+        DronesManager manager;
+        ASSERT_FALSE(manager.remove_back())
+        ASSERT_TRUE(manager.insert(DronesManager::DroneRecord(42), 0))
+        ASSERT_FALSE(manager.insert(DronesManager::DroneRecord(5), 4))
+        ASSERT_TRUE(manager.remove_front())
+        ASSERT_TRUE(manager.first == NULL && manager.last == NULL)
+        ASSERT_TRUE(manager.get_size() == 0 && manager.empty() == 1)
         
-        ASSERT_TRUE(manager1.first == NULL && manager1.last == NULL)
-        ASSERT_TRUE(manager2.first == NULL && manager2.last == NULL)
-        ASSERT_TRUE(manager1.get_size() == manager2.get_size() && manager1.get_size() == 0)
-        ASSERT_TRUE(manager1.empty() == true && manager2.empty() == true)
+        ASSERT_FALSE(manager.remove_front())
+        ASSERT_TRUE(manager.insert_back(DronesManager::DroneRecord(100)))
+        ASSERT_TRUE(manager.remove_back())
+        ASSERT_TRUE(manager.first == NULL && manager.last == NULL)
+        ASSERT_TRUE(manager.get_size() == 0 && manager.empty() == 1)
         
         return true;
     }
     
     // PURPOSE: replace() and reverse_list() work properly
-    bool test5() {
+    bool test5 () {
         DronesManager manager;
-        const int num_elems = 8;
-        for (int i = 0; i < num_elems; i++) {
+        const int size = 6;
+        for (int i = 0; i < size; i++) {
             ASSERT_TRUE(manager.insert_back(DronesManager::DroneRecord(i)))
         }
         
-        ASSERT_TRUE(manager.replace(0, DronesManager::DroneRecord(8)))
-        ASSERT_TRUE(manager.replace(3, DronesManager::DroneRecord(9)))
-        ASSERT_TRUE(manager.replace(7, DronesManager::DroneRecord(10)))
+        ASSERT_TRUE(manager.replace(0, DronesManager::DroneRecord(3)))
+        ASSERT_TRUE(manager.replace(3, DronesManager::DroneRecord(42)))
+        ASSERT_FALSE(manager.replace(8, DronesManager::DroneRecord(100)))
+        ASSERT_FALSE(manager.replace(-2, DronesManager::DroneRecord(0)))
+        ASSERT_TRUE(manager.replace(5, DronesManager::DroneRecord(6)))
+        ASSERT_TRUE(manager.replace(5, DronesManager::DroneRecord(6)))
+        ASSERT_TRUE(manager.replace(4, DronesManager::DroneRecord(7)))
         
-        ASSERT_TRUE(*manager.first == DronesManager::DroneRecord(8))
-        ASSERT_TRUE(*manager.last == DronesManager::DroneRecord(10)) // test fails here
-        ASSERT_TRUE(*(manager.first->next->next->next) == DronesManager::DroneRecord(9))
+        ASSERT_TRUE(*manager.first == DronesManager::DroneRecord(3))
+        ASSERT_TRUE(*manager.last == DronesManager::DroneRecord(6))
+        ASSERT_TRUE(*(manager.last->prev->prev) == DronesManager::DroneRecord(42))
         
+        int test_values[size] = {6, 7, 42, 2, 1, 3};
+        ASSERT_TRUE(manager.reverse_list());
+        for (int i = 0; i < size; i++) {
+            ASSERT_TRUE(manager.select(i) == DronesManager::DroneRecord(test_values[i]));
+        }
         ASSERT_TRUE(manager.first->prev == NULL && manager.last->next == NULL)
         
         return true;
     }
     
     // PURPOSE: insert_front() keeps moving elements forward
-    bool test6() {
+    bool test6 () {
         DronesManager manager;
-        const int num_elems = 5;
-        for (int i = 0; i < num_elems; i++) {
+        const int size = 7;
+        for (int i = 0; i < size; i++) {
             ASSERT_TRUE(manager.insert_front(DronesManager::DroneRecord(i)))
-            ASSERT_TRUE(manager.get_size() == (i + 1))
+            ASSERT_TRUE(manager.get_size() == (i+1))
             ASSERT_TRUE(*manager.first == DronesManager::DroneRecord(i))
             
-            DronesManager::DroneRecord* n = manager.first;
+            DronesManager::DroneRecord* temp = manager.first;
             for (int j = 0; j <= i; j++) {
-                DronesManager::DroneRecord expected_value = DronesManager::DroneRecord(i - j);
-                ASSERT_TRUE(n != NULL && *n == expected_value)
-                n = n->next;
+                DronesManager::DroneRecord value = DronesManager::DroneRecord(i - j);
+                ASSERT_TRUE(temp && *temp == value)
+                temp = temp->next;
             }
         }
         ASSERT_TRUE(manager.first->prev == NULL && manager.last->next == NULL)
