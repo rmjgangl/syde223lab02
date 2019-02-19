@@ -35,22 +35,26 @@ public:
     
     // PURPOSE: select() and search() work properly
     bool test3() {
-        DronesManager manager1;
+        DronesManager manager;
         
-        const int num_elems = 5;
-        for (int i = 0; i < num_elems; i++) {
-            ASSERT_TRUE(manager1.insert_back(DronesManager::DroneRecord(i*100)))
+        const int size = 7;
+        for (int i = 0; i < size; i++) {
+            ASSERT_TRUE(manager.insert_front(DronesManager::DroneRecord(i)))
         }
         
-        unsigned int idx = 3;
-        ASSERT_TRUE(manager1.search(manager1.select(idx)) == idx)
-        ASSERT_TRUE(manager1.select(num_elems + 1) == 400)
-        ASSERT_TRUE(manager1.search(1000) == manager1.get_size())
+        unsigned int index = 2;
+        ASSERT_TRUE(manager.select(index) == size-index-1)
+        ASSERT_FALSE(manager.select(size+1) == true)
+        ASSERT_FALSE(manager.select(-4) == true)
         
-        for (int i = 0; i < num_elems; i++) {
-            ASSERT_TRUE(manager1.select(i) == i*100)
+        ASSERT_TRUE(manager.search(0) == abs(size-1))
+        ASSERT_TRUE(manager.search(6) == 0)
+        
+        for (int i = 0; i < size; i++) {
+            ASSERT_TRUE(manager.search(i) == abs(size-i-1))
         }
-        ASSERT_TRUE(manager1.first->prev == NULL && manager1.last->next == NULL)
+
+        ASSERT_TRUE(manager.first->prev == NULL && manager.last->next == NULL)
         return true;
     }
     
