@@ -310,6 +310,7 @@ bool DronesManagerSorted::insert_sorted_asc(DroneRecord val) {
             temp2 = temp2->next;
             index++;
         }
+        insert_back(*temp);
         return true;
     }
 }
@@ -334,6 +335,7 @@ bool DronesManagerSorted::insert_sorted_desc(DroneRecord val) {
             temp2 = temp2->next;
             index++;
         }
+        insert_back(*temp);
         return true;
     }
 }
